@@ -1,6 +1,10 @@
+import winsound
+from threading import Thread
+import time
 import os
 import sys
 import random
+import math
 import turtle
 
 # turtle functions
@@ -13,8 +17,8 @@ def polygon(sides, length, colour):
     turtle.color(colour)
     turtle.fillcolor(colour)
     turtle.begin_fill()
-    angle = 180-((180*(sides-2))/sides) # uses angle formula to work out angle
-    for i in range(sides): # draws polygon
+    angle = 180-((180*(sides-2))/sides)
+    for i in range(sides):
         turtle.forward(length)
         turtle.left(angle)
     turtle.end_fill()
@@ -45,7 +49,6 @@ def cherry(x, y):
     x -= 40
     y -= 20
     turtle.setheading(225)
-    turtle.width(5)
     for _ in range(2):
         goto(x, y)
         turtle.color("green")
@@ -55,25 +58,27 @@ def cherry(x, y):
         turtle.left(20)
     turtle.setheading(0)
 def bell(x, y):
-    y -= 80
-    x += 15
+    x -= 40
+    y -= 10
+    goto(x, y-130)
+    circle(10, "gold")
     goto(x, y)
-    turtle.width(0)
-    turtle.setheading(90)
-    circle(60, "gold")
+    turtle.setheading(180)
     turtle.color("black")
-    turtle.circle(60)
-    goto(x-120, y)
-    rectangle(20, 120, "gold")
-    goto(x-60, y)
-    turtle.right(180)
-    turtle.forward(50)
-    turtle.left(90)
-    circle(10, "black")
+    turtle.fillcolor("gold")
+    turtle.begin_fill()
+    turtle.circle(60, 90)
+    turtle.forward(60)
+    turtle.right(270)
+    turtle.forward(60)
+    turtle.forward(60)
+    turtle.right(270)
+    turtle.forward(60)
+    turtle.circle(60, 90)
+    turtle.end_fill()
 def lemon(x, y):
     x -= 40
     y -= 140
-    turtle.width(5)
     goto(x, y)
     circle(60, "yellow")
     goto(x, y+5)
@@ -92,7 +97,6 @@ def lemon(x, y):
 def orange(x, y):
     x -= 40
     y -= 140
-    turtle.width(5)
     goto(x, y)
     circle(60, "orange")
     goto(x, y+5)
@@ -147,10 +151,21 @@ def skull(x, y):
 def setup():
     global credit
     global streak
+    global music
+    global font_name
     credit = 100
     streak = 1.0
-    turtle.screensize(600, 600)
+    music = False
+    font_name = "Terminal"
+    screen = turtle.Screen()
+    screen.title("Fruit Machine")
+    screen.setup(width=600, height=600)
+    screen.bgpic("background.gif")
     goto(0, 0)
+def bgm():
+    while True:
+        winsound.PlaySound("bgm.wav", winsound.SND_FILENAME|winsound.SND_ASYNC)
+        time.sleep(1613)
 def check_winnings(rolled):
     not_duplicates = []
     duplicates = []
@@ -165,28 +180,28 @@ def check_winnings(rolled):
     goto(0, -265)
     if len(duplicates) == 1:
         if duplicates[0] == "D":
-            turtle.write(arg="2 Skulls!", move=False, align="center", font=("Cooper Std Black", 45, "italic"))
+            turtle.write(arg="2 Skulls!", move=False, align="center", font=("font_name", 45, "italic"))
             return -100
         else:
-            turtle.write(arg="2 of a Kind!", move=False, align="center", font=("Cooper Std Black", 45, "italic"))
+            turtle.write(arg="2 of a Kind!", move=False, align="center", font=("font_name", 45, "italic"))
             return 50
     elif len(duplicates) == 2:
         if duplicates[0] == "D":
-            turtle.write(arg="3 Skulls!", move=False, align="center", font=("Cooper Std Black", 45, "italic"))
+            turtle.write(arg="3 Skulls!", move=False, align="center", font=("font_name", 45, "italic"))
             return "fail"
         elif duplicates[0] == "B":
-            turtle.write(arg="3 Bells!", move=False, align="center", font=("Cooper Std Black", 45, "italic"))
+            turtle.write(arg="3 Bells!", move=False, align="center", font=("font_name", 45, "italic"))
             return 500
         else:
-            turtle.write(arg="3 of a Kind!", move=False, align="center", font=("Cooper Std Black", 45, "italic"))
+            turtle.write(arg="3 of a Kind!", move=False, align="center", font=("font_name", 45, "italic"))
             return 100
     else:
-        turtle.write(arg="Too Bad!", move=False, align="center", font=("Cooper Std Black", 45, "italic"))
+        turtle.write(arg="Too Bad!", move=False, align="center", font=("font_name", 45, "italic"))
         return 0
 def play():
     global streak
     global credit
-    symbols = ["C", "B", "L", "O", "S", "D"] # Cherry, Bell, Lemon, Orange, Star, Skull
+    symbols = ["C", "B", "L", "O", "S", "D"]
     names = [cherry, bell, lemon, orange, star, skull]
     rolled = []
     input("ROUND BEGIN!\nPull lever to spin [ENTER]")
@@ -199,43 +214,47 @@ def play():
         numbers.append(number)
     count = 0
     for num in numbers:
+        turtle.width(5)
         names[num](x_pos[count], 80)
+        turtle.setheading(0)
+        turtle.width(0)
         count += 1
     x = check_winnings(rolled)
     if x == "fail":
         credit = 0
         streak = 1.0
-    elif x == 0:
+    elif x <= 0:
         streak = 1.0
+        credit += x
+        credit = math.floor(credit)
     else:
         credit += x*streak
-        credit = int(credit)
+        credit = math.floor(credit)
         streak += 0.5
     input("Press ENTER to continue...")
-    return rolled
+    menu()
 def menu():
     global credit
     turtle.speed(0)
     turtle.width(0)
-    colours = ["crimson", "gold", "yellow", "orange", "deep sky blue", "white"]
-    x = range(-300, 400, 100)
-    for i in range(6):
-        turtle.goto(x[i], 300)
-        rectangle(100, 600, colours[i])
     goto(-250, 230)
     rectangle(500, 70, "white")
     goto(0, 160)
-    turtle.write(arg="Fruit Machine", move=False, align="center", font=("Cooper Std Black", 45, "bold"))
+    turtle.write(arg="Fruit Machine", move=False, align="center", font=("font_name", 45, "bold"))
     turtle.width(5)
     x_pos = [-270, -80, 110]
     for i in range(3):
         goto(x_pos[i], 80)
         rectangle(160, 160, "white")
     turtle.width(1)
+    goto(-250, -100)
+    rectangle(500, 70, "white")
+    goto(0, -165)
+    turtle.write(arg=f'Credit: {credit} x{streak}', move=False, align="center", font=("font_name", 45, "normal"))
     goto(-250, -200)
     rectangle(500, 70, "white")
     goto(0, -265)
-    turtle.write(arg="Spin to Win!", move=False, align="center", font=("Cooper Std Black", 45, "normal"))
+    turtle.write(arg="Spin to Win!", move=False, align="center", font=("font_name", 45, "normal"))
     #skull(-150, 80)
     os.system('cls')
     print("""
@@ -283,15 +302,18 @@ QUIT [3]
         input("You haven't started a round yet!")
         menu()
     elif choice == "3":
-        input(f'Know your limits!\nYou finished with £{credit/100}')
+        print(f'Know your limits!\nYou finished with £{credit/100}\n\nClosing down...')
         credit = 0
         turtle.speed("normal")
         goto(-300, 300)
         rectangle(600, 600, "black")
+        winsound.PlaySound("quit.wav", winsound.SND_FILENAME|winsound.SND_ASYNC)
         sys.exit()
     else:
         play()
 
 setup()
-while True:
-    menu()
+bgm = Thread(target=bgm)
+bgm.start()
+menu()
+#bell(0, 0)
