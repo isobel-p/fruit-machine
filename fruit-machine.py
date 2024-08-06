@@ -149,7 +149,7 @@ def skull(x, y):
 def bgm():
     while True:
         winsound.PlaySound("bgm.wav", winsound.SND_FILENAME|winsound.SND_ASYNC)
-        time.sleep(1614)
+        time.sleep(95)
 def setup():
     global credit
     global streak
