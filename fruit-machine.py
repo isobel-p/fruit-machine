@@ -17,8 +17,8 @@ def polygon(sides, length, colour):
     turtle.color(colour)
     turtle.fillcolor(colour)
     turtle.begin_fill()
-    angle = 180-((180*(sides-2))/sides)
-    for i in range(sides):
+    angle = 180-((180*(sides-2))/sides) # uses angle formula to work out angle
+    for i in range(sides): # draws polygon
         turtle.forward(length)
         turtle.left(angle)
     turtle.end_fill()
@@ -58,23 +58,21 @@ def cherry(x, y):
         turtle.left(20)
     turtle.setheading(0)
 def bell(x, y):
-    x -= 40
-    y -= 10
-    goto(x, y-130)
+    x += 20
+    y -= 70
+    goto(x-60, y-70)
     circle(10, "gold")
     goto(x, y)
-    turtle.setheading(180)
+    turtle.setheading(90)
     turtle.color("black")
     turtle.fillcolor("gold")
     turtle.begin_fill()
-    turtle.circle(60, 90)
+    turtle.circle(60, 180)
     turtle.forward(60)
     turtle.right(270)
-    turtle.forward(60)
-    turtle.forward(60)
+    turtle.forward(120)
     turtle.right(270)
     turtle.forward(60)
-    turtle.circle(60, 90)
     turtle.end_fill()
 def lemon(x, y):
     x -= 40
@@ -148,6 +146,10 @@ def skull(x, y):
     polygon(3, 7, "black")
 
 # game functions
+def bgm():
+    while True:
+        winsound.PlaySound("bgm.wav", winsound.SND_FILENAME|winsound.SND_ASYNC)
+        time.sleep(1614)
 def setup():
     global credit
     global streak
@@ -162,10 +164,7 @@ def setup():
     screen.setup(width=600, height=600)
     screen.bgpic("background.gif")
     goto(0, 0)
-def bgm():
-    while True:
-        winsound.PlaySound("bgm.wav", winsound.SND_FILENAME|winsound.SND_ASYNC)
-        time.sleep(1613)
+    menu()
 def check_winnings(rolled):
     not_duplicates = []
     duplicates = []
@@ -180,35 +179,39 @@ def check_winnings(rolled):
     goto(0, -265)
     if len(duplicates) == 1:
         if duplicates[0] == "D":
-            turtle.write(arg="2 Skulls!", move=False, align="center", font=("font_name", 45, "italic"))
+            turtle.write(arg="2 Skulls!", move=False, align="center", font=(font_name, 45, "bold"))
             return -100
         else:
-            turtle.write(arg="2 of a Kind!", move=False, align="center", font=("font_name", 45, "italic"))
+            turtle.write(arg="2 of a Kind!", move=False, align="center", font=(font_name, 45, "bold"))
             return 50
     elif len(duplicates) == 2:
         if duplicates[0] == "D":
-            turtle.write(arg="3 Skulls!", move=False, align="center", font=("font_name", 45, "italic"))
+            turtle.write(arg="3 Skulls!", move=False, align="center", font=(font_name, 45, "bold"))
             return "fail"
         elif duplicates[0] == "B":
-            turtle.write(arg="3 Bells!", move=False, align="center", font=("font_name", 45, "italic"))
+            turtle.write(arg="3 Bells!", move=False, align="center", font=(font_name, 45, "bold"))
             return 500
         else:
-            turtle.write(arg="3 of a Kind!", move=False, align="center", font=("font_name", 45, "italic"))
+            turtle.write(arg="3 of a Kind!", move=False, align="center", font=(font_name, 45, "bold"))
             return 100
     else:
-        turtle.write(arg="Too Bad!", move=False, align="center", font=("font_name", 45, "italic"))
+        turtle.write(arg="Too Bad!", move=False, align="center", font=(font_name, 45, "bold"))
         return 0
 def play():
     global streak
     global credit
-    symbols = ["C", "B", "L", "O", "S", "D"]
+    symbols = ["C", "B", "L", "O", "S", "D"] # Cherry, Bell, Lemon, Orange, Star, Skull
     names = [cherry, bell, lemon, orange, star, skull]
     rolled = []
-    input("ROUND BEGIN!\nPull lever to spin [ENTER]")
+    goto(-250, -100)
+    rectangle(500, 70, "white")
+    goto(0, -165)
     credit -= 20
+    turtle.write(arg=f'Credit: {credit} x{streak}', move=False, align="center", font=(font_name, 45, "normal"))
+    input("ROUND BEGIN!\nPull lever to spin [ENTER]")
     x_pos = [-150, 40, 230]
     numbers = []
-    for i in range(3):
+    for _ in range(3):
         number = random.randint(0, 5)
         rolled.append(symbols[number])
         numbers.append(number)
@@ -237,10 +240,15 @@ def menu():
     global credit
     turtle.speed(0)
     turtle.width(0)
+    #colours = ["crimson", "gold", "yellow", "orange", "deep sky blue", "white"]
+    #x = range(-300, 400, 100)
+    #for i in range(6):
+    #    turtle.goto(x[i], 300)
+    #    rectangle(100, 600, colours[i])
     goto(-250, 230)
     rectangle(500, 70, "white")
     goto(0, 160)
-    turtle.write(arg="Fruit Machine", move=False, align="center", font=("font_name", 45, "bold"))
+    turtle.write(arg="Fruit Machine", move=False, align="center", font=(font_name, 45, "bold"))
     turtle.width(5)
     x_pos = [-270, -80, 110]
     for i in range(3):
@@ -250,11 +258,11 @@ def menu():
     goto(-250, -100)
     rectangle(500, 70, "white")
     goto(0, -165)
-    turtle.write(arg=f'Credit: {credit} x{streak}', move=False, align="center", font=("font_name", 45, "normal"))
+    turtle.write(arg=f'Credit: {credit} x{streak}', move=False, align="center", font=(font_name, 45, "normal"))
     goto(-250, -200)
     rectangle(500, 70, "white")
     goto(0, -265)
-    turtle.write(arg="Spin to Win!", move=False, align="center", font=("font_name", 45, "normal"))
+    turtle.write(arg="Spin to Win!", move=False, align="center", font=(font_name, 45, "normal"))
     #skull(-150, 80)
     os.system('cls')
     print("""
@@ -282,7 +290,7 @@ def menu():
     |________________________________________|
     ''')
     if credit < 0:
-        turtle.speed("normal")
+        winsound.PlaySound("lose.wav", winsound.SND_FILENAME|winsound.SND_ASYNC)
         goto(-300, 300)
         rectangle(600, 600, "black")
         os.system('cls')
@@ -294,8 +302,16 @@ PULL [2]
 QUIT [3]
 > """)
     if choice == "0":
-        input("The Fruit Machine is already on!")
-        menu()
+        answer = input("This will reset the Fruit Machine. Are you sure you want to continue? [Y]es/[N]o > ")
+        if answer.lower() == "y":
+            credit = 0
+            goto(-300, 300)
+            rectangle(600, 600, "black")
+            winsound.PlaySound("quit.wav", winsound.SND_FILENAME|winsound.SND_ASYNC)
+            sys.exit()
+        else:
+            input("Good choice. Press ENTER to resume.")
+            menu()
     elif choice == "1":
         play()
     elif choice == "2":
@@ -304,16 +320,16 @@ QUIT [3]
     elif choice == "3":
         print(f'Know your limits!\nYou finished with £{credit/100}\n\nClosing down...')
         credit = 0
-        turtle.speed("normal")
         goto(-300, 300)
         rectangle(600, 600, "black")
+        time.sleep(1)
         winsound.PlaySound("quit.wav", winsound.SND_FILENAME|winsound.SND_ASYNC)
         sys.exit()
     else:
         play()
 
-setup()
+winsound.PlaySound("start.wav", winsound.SND_FILENAME|winsound.SND_ASYNC)
+time.sleep(1)
 bgm = Thread(target=bgm)
 bgm.start()
-menu()
-#bell(0, 0)
+setup()
