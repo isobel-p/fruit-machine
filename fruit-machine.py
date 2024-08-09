@@ -2,7 +2,6 @@ import winsound
 from threading import Thread
 import time
 import os
-import sys
 import random
 import math
 import turtle
@@ -148,13 +147,39 @@ def skull(x, y):
 # game functions
 def bgm():
     while True:
-        winsound.PlaySound("bgm.wav", winsound.SND_FILENAME|winsound.SND_ASYNC)
-        time.sleep(95)
+        try:
+            if os.path.exists("bgm.wav"):
+                winsound.PlaySound("bgm.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
+                time.sleep(72)
+            else:
+                raise FileNotFoundError
+        except (RuntimeError, FileNotFoundError):
+            try:
+                if os.path.exists("bgm2.wav"):
+                    winsound.PlaySound("bgm2.wav", winsound.SND_FILENAME | winsound.SND_ASYNC)
+                    time.sleep(95)
+                else:
+                    raise FileNotFoundError("bgm2.wav not found")
+            except (RuntimeError, FileNotFoundError):
+                winsound.Beep(440, 1000)
+                seconds = 10
+                print(f'Background music failure. Retrying in {seconds} seconds.')
+                time.sleep(seconds)
+def end():
+    os.system('cls')
+    turtle.clearscreen()
+    screen.title("GAME OVER | Fruit Machine")
+    screen.addshape("end.gif")
+    turtle.shape("end.gif")
+    while True:
+        winsound.PlaySound("end.wav", winsound.SND_FILENAME|winsound.SND_ASYNC)
+        time.sleep(94)
 def setup():
     global credit
     global streak
     global music
     global font_name
+    global screen
     credit = 100
     streak = 1.0
     music = False
@@ -236,34 +261,24 @@ def play():
         streak += 0.5
     input("Press ENTER to continue...")
     menu()
-def menu():
-    global credit
+def menu_screen():
     turtle.speed(0)
-    turtle.width(0)
-    #colours = ["crimson", "gold", "yellow", "orange", "deep sky blue", "white"]
-    #x = range(-300, 400, 100)
-    #for i in range(6):
-    #    turtle.goto(x[i], 300)
-    #    rectangle(100, 600, colours[i])
-    goto(-250, 230)
-    rectangle(500, 70, "white")
-    goto(0, 160)
-    turtle.write(arg="Fruit Machine", move=False, align="center", font=(font_name, 45, "bold"))
+    turtle.width(1)
+    y_pos = [230, -100, -200]
+    text = ["Fruit Machine", f'Credit: {credit} x{streak}', "Spin to Win!"]
+    weight = ["bold", "normal", "normal"]
+    for i in range(3):
+        goto(-250, y_pos[i])
+        rectangle(500, 70, "white")
+        goto(0, y_pos[i]-65)
+        turtle.write(arg=text[i], move=False, align="center", font=(font_name, 45, weight[i]))
     turtle.width(5)
     x_pos = [-270, -80, 110]
     for i in range(3):
         goto(x_pos[i], 80)
         rectangle(160, 160, "white")
     turtle.width(1)
-    goto(-250, -100)
-    rectangle(500, 70, "white")
-    goto(0, -165)
-    turtle.write(arg=f'Credit: {credit} x{streak}', move=False, align="center", font=(font_name, 45, "normal"))
-    goto(-250, -200)
-    rectangle(500, 70, "white")
-    goto(0, -265)
-    turtle.write(arg="Spin to Win!", move=False, align="center", font=(font_name, 45, "normal"))
-    #skull(-150, 80)
+def menu_console():
     os.system('cls')
     print("""
   ______          _ _     __  __            _     _                        _____            _             _   _____                 _ 
@@ -289,12 +304,9 @@ def menu():
     | =====  |_|    |_|  |_| - Fruit Machine |
     |________________________________________|
     ''')
-    if credit < 0:
+    if credit <= 0:
         winsound.PlaySound("lose.wav", winsound.SND_FILENAME|winsound.SND_ASYNC)
-        goto(-300, 300)
-        rectangle(600, 600, "black")
-        os.system('cls')
-        sys.exit("The Fruit Machine is out of funds!")
+        end()
     choice = input("""Press a button:
 ON [0]
 GO [1/ENTER]
@@ -302,16 +314,8 @@ PULL [2]
 QUIT [3]
 > """)
     if choice == "0":
-        answer = input("This will reset the Fruit Machine. Are you sure you want to continue? [Y]es/[N]o > ")
-        if answer.lower() == "y":
-            credit = 0
-            goto(-300, 300)
-            rectangle(600, 600, "black")
-            winsound.PlaySound("quit.wav", winsound.SND_FILENAME|winsound.SND_ASYNC)
-            sys.exit()
-        else:
-            input("Good choice. Press ENTER to resume.")
-            menu()
+        input("The Fruit Machine is already on!")
+        menu()
     elif choice == "1":
         play()
     elif choice == "2":
@@ -319,15 +323,15 @@ QUIT [3]
         menu()
     elif choice == "3":
         print(f'Know your limits!\nYou finished with £{credit/100}\n\nClosing down...')
-        credit = 0
-        goto(-300, 300)
-        rectangle(600, 600, "black")
         time.sleep(1)
         winsound.PlaySound("quit.wav", winsound.SND_FILENAME|winsound.SND_ASYNC)
-        sys.exit()
+        time.sleep(1)
+        end()
     else:
         play()
-
+def menu():
+    menu_screen()
+    menu_console()
 winsound.PlaySound("start.wav", winsound.SND_FILENAME|winsound.SND_ASYNC)
 time.sleep(1)
 bgm = Thread(target=bgm)
